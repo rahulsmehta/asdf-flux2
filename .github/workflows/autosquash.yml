@@ -2,22 +2,31 @@ name: autosquash
 on:
   pull_request:
     types:
-      - opened
       - reopened
       - edited
       - labeled
       - unlabeled
       - ready_for_review
+concurrency:
+  # only one autosquash at a time per PR
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 jobs:
   autosquash:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Get Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.AUTOMATION_APP_PRIVATE_KEY }}
+      - uses: actions/checkout@v4
       - uses: theoremlp/autosquash@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ steps.app-token.outputs.token }}
           pull-request-number: ${{ github.event.pull_request.number }}
           squash-commit-title: "${{ github.event.pull_request.title }} (#${{ github.event.pull_request.number }})"
           squash-commit-message: "${{ github.event.pull_request.body }}"
-          required-label: automerge
           do-not-merge-label: do-not-merge
+          required-label: automerge
