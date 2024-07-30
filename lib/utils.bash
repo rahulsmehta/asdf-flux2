@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for flux2.
 GH_REPO="https://github.com/fluxcd/flux2"
 TOOL_NAME="flux"
 TOOL_TEST="flux version --client"
@@ -47,8 +46,10 @@ download_release() {
 	# https://github.com/fluxcd/flux2/releases/download/v2.3.0/flux_2.3.0_darwin_amd64.tar.gz
 	url="$GH_REPO/releases/download/v${version}/flux_${version}_${variant}.tar.gz"
 
-	echo "* Downloading $TOOL_NAME release $version..."
+	echo "* Downloading $TOOL_NAME release $version... to $filename from $url"
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
+	ls "$filename"
+	stat "$filename"
 }
 
 install_version() {
