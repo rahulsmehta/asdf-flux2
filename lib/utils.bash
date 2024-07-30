@@ -2,9 +2,8 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for flux2.
 GH_REPO="https://github.com/fluxcd/flux2"
-TOOL_NAME="flux2"
+TOOL_NAME="flux"
 TOOL_TEST="flux version --client"
 
 fail() {
@@ -14,7 +13,6 @@ fail() {
 
 curl_opts=(-fsSL)
 
-# NOTE: You might want to remove this if flux2 is not hosted on GitHub releases.
 if [ -n "${GITHUB_API_TOKEN:-}" ]; then
 	curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
 fi
@@ -27,25 +25,31 @@ sort_versions() {
 list_github_tags() {
 	git ls-remote --tags --refs "$GH_REPO" |
 		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
+		sed 's/^v//'
 }
 
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if flux2 has other means of determining installable versions.
 	list_github_tags
 }
 
 download_release() {
-	local version filename url
+	local version filename url platform arch variant
 	version="$1"
 	filename="$2"
+	platform="$(uname | tr '[:upper:]' '[:lower:]')"
+	arch="$(arch)"
+	if [ "$arch" == "x86_64" ] || [ "$arch" == "i386" ]; then
+		arch="amd64"
+	fi
+	variant="${platform}_${arch}"
 
-	# TODO: Adapt the release URL convention for flux2
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	# https://github.com/fluxcd/flux2/releases/download/v2.3.0/flux_2.3.0_darwin_amd64.tar.gz
+	url="$GH_REPO/releases/download/v${version}/flux_${version}_${variant}.tar.gz"
 
-	echo "* Downloading $TOOL_NAME release $version..."
+	echo "* Downloading $TOOL_NAME release $version... to $filename from $url"
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
+	ls "$filename"
+	stat "$filename"
 }
 
 install_version() {
@@ -61,7 +65,6 @@ install_version() {
 		mkdir -p "$install_path"
 		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
 
-		# TODO: Assert flux2 executable exists.
 		local tool_cmd
 		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
 		test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."
