@@ -2,7 +2,7 @@
 
 # asdf-flux2 [![Build](https://github.com/rahulsmehta/asdf-flux2/actions/workflows/build.yml/badge.svg)](https://github.com/rahulsmehta/asdf-flux2/actions/workflows/build.yml) [![Lint](https://github.com/rahulsmehta/asdf-flux2/actions/workflows/lint.yml/badge.svg)](https://github.com/rahulsmehta/asdf-flux2/actions/workflows/lint.yml)
 
-[flux2](https://github.com/fluxcd/flux2) plugin for the [asdf version manager](https://asdf-vm.com).
+[FluxCD](https://github.com/fluxcd/flux2) plugin for the [asdf version manager](https://asdf-vm.com).
 
 </div>
 
@@ -15,32 +15,27 @@
 
 # Dependencies
 
-**TODO: adapt this section**
-
 - `bash`, `curl`, `tar`, and [POSIX utilities](https://pubs.opengroup.org/onlinepubs/9699919799/idx/utilities.html).
-- `SOME_ENV_VAR`: set this environment variable in your shell config to load the correct version of tool x.
 
 # Install
 
 Plugin:
 
 ```shell
-asdf plugin add flux2
-# or
-asdf plugin add flux2 https://github.com/rahulsmehta/asdf-flux2.git
+asdf plugin add flux https://github.com/rahulsmehta/asdf-flux2.git
 ```
 
-flux2:
+flux:
 
 ```shell
 # Show all installable versions
-asdf list-all flux2
+asdf list-all flux
 
 # Install specific version
-asdf install flux2 latest
+asdf install flux latest
 
 # Set a version globally (on your ~/.tool-versions file)
-asdf global flux2 latest
+asdf global flux latest
 
 # Now flux2 commands are available
 flux version --client
