@@ -1,5 +1,4 @@
 name: Lint
-
 on:
   push:
     branches:
@@ -10,13 +9,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-<<<<<<< HEAD
-      - uses: actions/checkout@v4
-      - uses: asdf-vm/actions/install@v2
-=======
       - uses: actions/checkout@v3
       - uses: asdf-vm/actions/install@v3
->>>>>>> origin/main
       - run: scripts/lint.bash
 
   actionlint:
