@@ -33,23 +33,61 @@ list_all_versions() {
 }
 
 download_release() {
-	local version filename url platform arch variant
+	local version release_filename checksum_filename 
+	local url_base release_url checksum_url platform arch variant
+
 	version="$1"
-	filename="$2"
+	release_filename="$2"
+	checksum_filename="$3"
 	platform="$(uname | tr '[:upper:]' '[:lower:]')"
 	arch="$(arch)"
 	if [ "$arch" == "x86_64" ] || [ "$arch" == "i386" ]; then
 		arch="amd64"
 	fi
 	variant="${platform}_${arch}"
+	RELEASE_ARTIFACT_FILENAME="flux_${version}_${variant}.tar.gz"
 
-	# https://github.com/fluxcd/flux2/releases/download/v2.3.0/flux_2.3.0_darwin_amd64.tar.gz
-	url="$GH_REPO/releases/download/v${version}/flux_${version}_${variant}.tar.gz"
+	url_base="$GH_REPO/releases/download/v${version}"
+	release_url="${url_base}/flux_${version}_${variant}.tar.gz"
+	checksum_url="${url_base}/flux_${version}_checksums.txt"
 
-	echo "* Downloading $TOOL_NAME release $version... to $filename from $url"
-	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
-	ls "$filename"
-	stat "$filename"
+	echo "* Downloading $TOOL_NAME release $version..."
+	curl "${curl_opts[@]}" -o "$release_filename" -C - "$release_url" || fail "Could not download $release_url"
+
+	echo "* Downloading checksums..."
+	curl "${curl_opts[@]}" -o "$checksum_filename" -C -  "$checksum_url" || fail "Could not download $checksum_url"
+}
+
+compute_sha256sum() {
+	local cmd
+  cmd=$(which sha256sum shasum | head -n 1)
+  case $(basename "$cmd") in
+    sha256sum)
+      sha256sum "$1" | cut -f 1 -d ' '
+      ;;
+    shasum)
+      shasum -a 256 "$1" | cut -f 1 -d ' '
+      ;;
+    *)
+      fail "Can not find sha256sum or shasum to compute checksum"
+      ;;
+  esac
+}
+
+
+verify_release() {
+	local release_filename checksum_filename
+	local expected_checksum release_checksum
+
+	release_filename="$1"
+	checksum_filename="$2"
+
+	expected_checksum=$(cat "$checksum_filename" | grep "$RELEASE_ARTIFACT_FILENAME" | cut -d' ' -f1)
+	release_checksum=$(compute_sha256sum "$release_filename")
+
+	if [[ "$expected_checksum" != "$release_checksum" ]]; then
+		fail "Expected sha256sum does not match "$expected_checksum", got $release_checksum"
+	fi
 }
 
 install_version() {
