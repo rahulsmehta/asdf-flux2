@@ -1,0 +1,20 @@
+name: reviewbot
+on:
+  pull_request: {}
+  pull_request_review: {}
+jobs:
+  required-reviewers:
+    name: reviewbot
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.AUTOMATION_APP_PRIVATE_KEY }}
+      - name: required-reviewers
+        uses: theoremlp/required-reviews@v2
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          post-review: true

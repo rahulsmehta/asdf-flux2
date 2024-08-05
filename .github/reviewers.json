@@ -1,0 +1,14 @@
+{
+  "teams": {},
+  "reviewers": {},
+  "overrides": [
+    {
+      "description": "Auto-approve dependency upgrades",
+      "onlyModifiedByUsers": ["mehta-bot[bot]"],
+      "onlyModifiedFileRegExs": [
+        "^.github/workflows/.*",
+        "^.tool-versions"
+      ]
+    }
+  ]
+}
