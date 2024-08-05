@@ -4,7 +4,7 @@
   "overrides": [
     {
       "description": "Auto-approve dependency upgrades",
-      "onlyModifiedByUsers": ["mehta-bot[bot]"],
+      "onlyModifiedByUsers": ["mehta-bot[bot]", "dependabot[bot]"],
       "onlyModifiedFileRegExs": [
         "^.github/workflows/.*",
         "^.tool-versions"
